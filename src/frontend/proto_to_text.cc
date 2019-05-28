@@ -11,12 +11,14 @@
 #include <resolv.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <fcntl.h> //open, O_RDONLY, O_WRONLY, O_CREAT
 
 #include "util.hh"
-#include "system_runner.hh"
+//#include "system_runner.hh"
 #include "http_response.hh"
 #include "http_record.pb.h"
 #include "file_descriptor.hh"
+#include "exception.hh"
 
 using namespace std;
 
@@ -24,7 +26,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " replayshell_file output_file" );
+            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " replayshell_file output_file" );
         }
 
         string proto_file = argv[ 1 ];
@@ -34,8 +36,8 @@ int main( int argc, char *argv[] )
 
         /* read in previous req/res protobuf */
         MahimahiProtobufs::RequestResponse protobuf;
-        if ( not protobuf.ParseFromFileDescriptor( fd.num() ) ) {
-            throw Exception( proto_file, "invalid HTTP request/response" );
+        if ( not protobuf.ParseFromFileDescriptor( fd.fd_num() ) ) {
+            throw runtime_error( proto_file + "invalid HTTP request/response" );
         }
 
         FileDescriptor messages( SystemCall( "open", open( new_file.c_str(), O_WRONLY | O_CREAT, 00600 ) ) );
@@ -126,8 +128,8 @@ int main( int argc, char *argv[] )
 
 
 
-    } catch ( const Exception & e ) {
-        e.perror();
+    } catch ( const runtime_error & e ) {
+        print_exception( e );
         return EXIT_FAILURE;
     }
 }
