@@ -44,31 +44,37 @@ int main( int argc, char *argv[] )
             }
         }
 
-        MahimahiProtobufs::RequestResponse final_protobuf;
-        MahimahiProtobufs::HTTPMessage new_response( protobuf.response() );
+        // cout << "request and response headers:" << endl;
+        MahimahiProtobufs::HTTPMessage request( protobuf.request() );
+        MahimahiProtobufs::HTTPMessage response( protobuf.response() );
 
         string scheme = "http://";
         if ( protobuf.scheme() == MahimahiProtobufs::RequestResponse_Scheme_HTTPS ) {
             scheme = "https://";
         }
+
         string host = "";
-        for ( int i = 0; i < protobuf.request().header_size(); i++ ) {
-            HTTPHeader current_header( protobuf.request().header(i) );
+        cout << request.first_line() << endl;
+        for ( int i = 0; i < request.header_size(); i++ ) {
+            HTTPHeader current_header( request.header(i) );
             if ( HTTPMessage::equivalent_strings( current_header.key(), "Host" ) ) {
                 host = current_header.value();
             }
+            cout << current_header.key() << ":" << current_header.value() << endl;
         }
-        string html_name = "";
-        string complete_name = protobuf.request().first_line();
-        string remove_first_space = complete_name.substr(complete_name.find(" ")+1);
-        html_name = remove_first_space.substr(0, remove_first_space.find(" "));
-        html_name = scheme + host + html_name;
-        cout << html_name << endl;
+        cout << "----------------------------------------" << endl;
 
-        cout << new_response.first_line() << endl;
+        // string html_name = "";
+        // string complete_name = protobuf.request().first_line();
+        // string remove_first_space = complete_name.substr(complete_name.find(" ")+1);
+        //html_name = remove_first_space.substr(0, remove_first_space.find(" "));
+        // html_name = scheme + host + html_name;
+        // cout << html_name << endl;
+
+        cout << response.first_line() << endl;
         /* use modified text file as new response body */
-        for ( int i = 0; i < new_response.header_size(); i++ ) {
-            HTTPHeader current_header( new_response.header(i) );
+        for ( int i = 0; i < response.header_size(); i++ ) {
+            HTTPHeader current_header( response.header(i) );
             cout << current_header.key() << ":" << current_header.value() << endl;
         }
     } catch ( const runtime_error & e ) {
