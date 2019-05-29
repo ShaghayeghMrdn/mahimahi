@@ -13,12 +13,14 @@
 #include <dirent.h>
 #include <iostream>
 #include <fstream>
+#include <fcntl.h> //open, O_RDONLY, O_WRONLY, O_CREAT
 
 #include "util.hh"
-#include "system_runner.hh"
+// #include "system_runner.hh"
 #include "http_response.hh"
 #include "http_record.pb.h"
 #include "file_descriptor.hh"
+#include "exception.hh"
 
 using namespace std;
 
@@ -26,7 +28,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 1 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " replayshell_file" );
+            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " replayshell_file" );
         }
 
         string proto_file = argv[ 1 ];
@@ -37,8 +39,8 @@ int main( int argc, char *argv[] )
             FileDescriptor old( SystemCall( "open ", open( proto_file.c_str(), O_RDONLY ) ) );
 
             /* store previous version (before modification) of req/res protobuf */
-            if ( not protobuf.ParseFromFileDescriptor( old.num() ) ) {
-                throw Exception( proto_file, "invalid HTTP request/response" );
+            if ( not protobuf.ParseFromFileDescriptor( old.fd_num() ) ) {
+                throw runtime_error( proto_file + "invalid HTTP request/response" );
             }
         }
 
@@ -69,8 +71,8 @@ int main( int argc, char *argv[] )
             HTTPHeader current_header( new_response.header(i) );
             cout << current_header.key() << ":" << current_header.value() << endl;
         }
-    } catch ( const Exception & e ) {
-        e.perror();
+    } catch ( const runtime_error & e ) {
+        print_exception( e );
         return EXIT_FAILURE;
     }
 }

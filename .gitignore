@@ -39,4 +39,8 @@ Makefile.in
 /src/frontend/mm-webreplay
 /src/frontend/mm-replayserver
 /src/frontend/protototext
+/src/frontend/texttoproto
+/src/frontend/changeheader
+/src/frontend/listheaders
+/src/frontend/removeheader
 /src/frontend/.libs

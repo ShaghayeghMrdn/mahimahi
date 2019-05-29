@@ -46,6 +46,26 @@ protototext_SOURCES = proto_to_text.cc
 protototext_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 protototext_LDFLAGS = -pthread
 
+bin_PROGRAMS += texttoproto
+texttoproto_SOURCES = text_to_proto.cc
+texttoproto_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+texttoproto_LDFLAGS = -pthread
+
+bin_PROGRAMS += changeheader
+changeheader_SOURCES = change_header.cc
+changeheader_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+changeheader_LDFLAGS = -pthread
+
+bin_PROGRAMS += listheaders
+listheaders_SOURCES = list_headers.cc
+listheaders_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+listheaders_LDFLAGS = -pthread
+
+bin_PROGRAMS += removeheader
+removeheader_SOURCES = remove_header.cc
+removeheader_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+removeheader_LDFLAGS = -pthread
+
 lib_LTLIBRARIES = libmod_deepcgi.la
 libmod_deepcgi_la_SOURCES = mod_deepcgi.c replayserver_filename.cc
 libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ $(libapr1_CFLAGS)

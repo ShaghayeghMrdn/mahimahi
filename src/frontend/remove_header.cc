@@ -13,12 +13,14 @@
 #include <dirent.h>
 #include <iostream>
 #include <fstream>
+#include <fcntl.h> //open, O_RDONLY, O_WRONLY, O_CREAT
 
 #include "util.hh"
-#include "system_runner.hh"
+// #include "system_runner.hh"
 #include "http_response.hh"
 #include "http_record.pb.h"
 #include "file_descriptor.hh"
+#include "exception.hh"
 
 using namespace std;
 
@@ -26,7 +28,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " replayshell_file header_to_remove" );
+            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " replayshell_file header_to_remove" );
         }
 
         string proto_file = argv[ 1 ];
@@ -38,8 +40,8 @@ int main( int argc, char *argv[] )
             FileDescriptor old( SystemCall( "open ", open( proto_file.c_str(), O_RDONLY ) ) );
 
             /* store previous version (before modification) of req/res protobuf */
-            if ( not protobuf.ParseFromFileDescriptor( old.num() ) ) {
-                throw Exception( proto_file, "invalid HTTP request/response" );
+            if ( not protobuf.ParseFromFileDescriptor( old.fd_num() ) ) {
+                throw runtime_error( proto_file + "invalid HTTP request/response" );
             }
         }
 
@@ -64,23 +66,23 @@ int main( int argc, char *argv[] )
         /* create new request/response pair using old request and new response */
         final_protobuf.set_ip( protobuf.ip() );
         final_protobuf.set_port( protobuf.port() );
-        final_protobuf.set_scheme( protobuf.scheme() ); 
+        final_protobuf.set_scheme( protobuf.scheme() );
         final_protobuf.mutable_request()->CopyFrom( protobuf.request() );
         final_protobuf.mutable_response()->CopyFrom( final_new_response );
 
         /* delete previous version of protobuf file */
         if( remove( proto_file.c_str() ) != 0 ) {
-            throw Exception( "Could not remove file: ", proto_file.c_str() );
+            throw runtime_error( "Could not remove file: " + proto_file );
         }
 
         FileDescriptor messages( SystemCall( "open", open( proto_file.c_str(), O_WRONLY | O_CREAT, 00600 ) ) );
 
         /* write new req/res protobuf (with modification) to the same file */
-        if ( not final_protobuf.SerializeToFileDescriptor( messages.num() ) ) {
-            throw Exception( "rewriting new protobuf", "failure to serialize new request/response pair" );
-        } 
-    } catch ( const Exception & e ) {
-        e.perror();
+        if ( not final_protobuf.SerializeToFileDescriptor( messages.fd_num() ) ) {
+            throw runtime_error( "rewriting new protobuf failure to serialize new request/response pair" );
+        }
+    } catch ( const runtime_error & e ) {
+        print_exception( e );
         return EXIT_FAILURE;
     }
 }
