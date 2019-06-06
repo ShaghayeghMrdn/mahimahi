@@ -43,4 +43,5 @@ Makefile.in
 /src/frontend/changeheader
 /src/frontend/listheaders
 /src/frontend/removeheader
+/src/frontend/jsonheaders
 /src/frontend/.libs

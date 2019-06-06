@@ -66,6 +66,11 @@ removeheader_SOURCES = remove_header.cc
 removeheader_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 removeheader_LDFLAGS = -pthread
 
+bin_PROGRAMS += jsonheaders
+jsonheaders_SOURCES = json_headers.cc
+jsonheaders_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+jsonheaders_LDFLAGS = -pthread
+
 lib_LTLIBRARIES = libmod_deepcgi.la
 libmod_deepcgi_la_SOURCES = mod_deepcgi.c replayserver_filename.cc
 libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ $(libapr1_CFLAGS)
