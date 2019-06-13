@@ -40,7 +40,7 @@ int date_diff( const string & date1, const string & date2 )
     auto tp_date2 = chrono::system_clock::from_time_t( mktime( &tm_date2 ) );
     time_t tt_date2 = chrono::system_clock::to_time_t( tp_date2 );
 
-    cerr << "date1: " << date1 << " date2: " << date2 << " diff: " << difftime( tt_date1, tt_date2) << " times: " << tt_date1 << " " << tt_date2 << endl;
+    // cerr << "date1: " << date1 << " date2: " << date2 << " diff: " << difftime( tt_date1, tt_date2) << " times: " << tt_date1 << " " << tt_date2 << endl;
     return difftime( tt_date1, tt_date2 );
     //return int(diff);
 }
@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 2 ) {
-            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " directory" );
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " directory" );
         }
 
         string directory = argv[ 1 ];
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
             int freshness = 0;
             string header_used = "";
             string date_sent = "";
-            string last_modified = "";
+            // string last_modified = "";
             total_obj = total_obj + 1;
             bool is_js = false;
             for ( int v = 0; v < old_one.header_size(); v++ ) {
@@ -100,9 +100,9 @@ int main( int argc, char *argv[] )
                 if ( HTTPMessage::equivalent_strings( curr_header.key(), "Date" ) ) {
                     date_sent = curr_header.value();
                 }
-                if ( HTTPMessage::equivalent_strings( curr_header.key(), "Last-Modified" ) ) {
-                    last_modified = curr_header.value();
-                }
+                // if ( HTTPMessage::equivalent_strings( curr_header.key(), "Last-Modified" ) ) {
+                //     last_modified = curr_header.value();
+                // }
                 if ( HTTPMessage::equivalent_strings( curr_header.key(), "Content-Type" ) ) {
                     if ( (curr_header.value().find("image") != string::npos) || (curr_header.value().find("png") != string::npos) || (curr_header.value().find("jpeg") != string::npos) || (curr_header.value().find("gif") != string::npos) ) {
                         total_js = total_js + 1;
@@ -164,9 +164,9 @@ int main( int argc, char *argv[] )
                 }
 
                 // Last resort is 0.1(Date-Last-Modified)
-                if ( HTTPMessage::equivalent_strings( current_header.key(), "Expires" ) ) {
+                if ( HTTPMessage::equivalent_strings( current_header.key(), "Last-Modified" ) ) {
                     if ( cacheable ) {
-                        string last_date = current_header.value();
+                        string last_modified = current_header.value();
                         if ( (header_used != "cache-control") && (header_used != "expires") ) {
                             if ( last_modified != "" ) {
                                 freshness = date_diff( date_sent, last_modified ) * 0.1;
@@ -180,17 +180,20 @@ int main( int argc, char *argv[] )
             // if cacheable, then print filename and freshness...if not cacheable, then just print filename and not-cacheable (or freshness=0)
             if ( cacheable ) {
                 if ( freshness > 0 ) {
-                    cout << filename << " freshness=" << freshness << endl;
+                    cout << filename << " freshness=" << freshness << " header=" << header_used << endl;
                     total_cacheable = total_cacheable + 1;
                     if ( is_js ) {
                         js_cache = js_cache + 1;
                     }
-                } else {
-                    cout << filename << " freshness=0" << endl;
                 }
-            } else {
-                cout << filename << " freshness=0" << endl;
+                // else {
+                //    cout << filename << " freshness=0 header=" << header_used << endl;
+                // }
             }
+            // else {
+            //    cout << filename << " freshness=0" << endl;
+            // }
+
             //if ( (header_used == "last-modified") || (header_used == "expires") ) {
             //    if ( cacheable ) {
             //        cout << "ODD HEADER FOR: " << filename << endl;
@@ -203,7 +206,6 @@ int main( int argc, char *argv[] )
         //cout << "TOTAL OBJECTS: " << total_obj << " and TOTAL CACHEABLE: " << total_cacheable << " RATIO: " << ratio << endl;
         //float js_ratio = js_cache/float(total_js);
         //cout << "TOTAL IMAGE: " << total_js << " and IMAGE CACHEABLE: " << js_cache << " RATIO: " << js_ratio << endl;
-        cout << "End!" << endl;
     } catch ( const runtime_error & e ) {
         print_exception( e );
         return EXIT_FAILURE;
