@@ -46,15 +46,27 @@ int main( int argc, char *argv[] )
         }
 
         MahimahiProtobufs::RequestResponse final_protobuf;
+
+        MahimahiProtobufs::HTTPMessage old_request( protobuf.request() );
+        MahimahiProtobufs::HTTPMessage final_new_request;
+
+        final_new_request.set_first_line( protobuf.request().first_line() );
+        final_new_request.set_body( protobuf.request().body() ); // which is empty ("")
+
+        for ( int i = 0; i < old_request.header_size(); i++ ) {
+            HTTPHeader current_header( old_request.header(i) );
+            if ( not HTTPMessage::equivalent_strings( current_header.key(), header_to_remove ) ) {
+                /* keep this header */
+                final_new_request.add_header()->CopyFrom( current_header.toprotobuf() );
+            }
+        }
+
         MahimahiProtobufs::HTTPMessage new_response( protobuf.response() );
         MahimahiProtobufs::HTTPMessage final_new_response;
-
-        //HTTPMessage just_message;
 
         final_new_response.set_first_line( protobuf.response().first_line() );
         final_new_response.set_body( protobuf.response().body() );
 
-        /* use modified text file as new response body */
         for ( int i = 0; i < new_response.header_size(); i++ ) {
             HTTPHeader current_header( new_response.header(i) );
             if ( not HTTPMessage::equivalent_strings( current_header.key(), header_to_remove ) ) {
@@ -67,7 +79,7 @@ int main( int argc, char *argv[] )
         final_protobuf.set_ip( protobuf.ip() );
         final_protobuf.set_port( protobuf.port() );
         final_protobuf.set_scheme( protobuf.scheme() );
-        final_protobuf.mutable_request()->CopyFrom( protobuf.request() );
+        final_protobuf.mutable_request()->CopyFrom( final_new_request );
         final_protobuf.mutable_response()->CopyFrom( final_new_response );
 
         /* delete previous version of protobuf file */
