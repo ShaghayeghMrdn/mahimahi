@@ -27,8 +27,8 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
     try {
-        if ( argc < 3 ) {
-            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " replayshell_file header new_value" );
+        if ( argc < 4 ) {
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " replayshell_file header new_value" );
         }
 
         string proto_file = argv[ 1 ];
@@ -42,7 +42,7 @@ int main( int argc, char *argv[] )
 
             /* store previous version (before modification) of req/res protobuf */
             if ( not protobuf.ParseFromFileDescriptor( old.fd_num() ) ) {
-                throw runtime_error( proto_file + "invalid HTTP request/response" );
+                throw runtime_error( proto_file + " invalid HTTP request/response" );
             }
         }
 

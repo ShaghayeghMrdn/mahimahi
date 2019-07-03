@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " json_file replayshell_file" );
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " json_file replayshell_file" );
         }
 
         string json_file = argv[ 1 ];
@@ -46,7 +46,7 @@ int main( int argc, char *argv[] )
         }
         /* remove extra /n at the end */
         content = content.substr( 0, content.size() - 1 );
-        cout << "Expected 3150: " << content.length() << endl;
+        cout << "Content-Length = " << content.length() << endl;
 
         MahimahiProtobufs::RequestResponse protobuf;
 

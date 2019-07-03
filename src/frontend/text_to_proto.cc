@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " modified_file replayshell_file" );
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " modified_file replayshell_file" );
         }
 
         string modified_file = argv[ 1 ];
@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
 
             /* store previous version (before modification) of req/res protobuf */
             if ( not protobuf.ParseFromFileDescriptor( old.fd_num() ) ) {
-                throw runtime_error( proto_file + "invalid HTTP request/response" );
+                throw runtime_error( proto_file + " invalid HTTP request/response" );
             }
         }
 

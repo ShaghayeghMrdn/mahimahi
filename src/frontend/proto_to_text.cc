@@ -26,7 +26,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw runtime_error( "Usage" + string( argv[ 0 ] ) + " replayshell_file output_file" );
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " replayshell_file output_file" );
         }
 
         string proto_file = argv[ 1 ];
@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
         /* read in previous req/res protobuf */
         MahimahiProtobufs::RequestResponse protobuf;
         if ( not protobuf.ParseFromFileDescriptor( fd.fd_num() ) ) {
-            throw runtime_error( proto_file + "invalid HTTP request/response" );
+            throw runtime_error( proto_file + " invalid HTTP request/response" );
         }
 
         FileDescriptor messages( SystemCall( "open", open( new_file.c_str(), O_WRONLY | O_CREAT, 00600 ) ) );
