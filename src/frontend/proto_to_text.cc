@@ -8,13 +8,13 @@
 #include <grp.h>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <resolv.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h> //open, O_RDONLY, O_WRONLY, O_CREAT
 
 #include "util.hh"
-//#include "system_runner.hh"
 #include "http_response.hh"
 #include "http_record.pb.h"
 #include "file_descriptor.hh"
@@ -50,8 +50,10 @@ int main( int argc, char *argv[] )
             scheme = "https://";
         }
 
-        /* check if response is gzipped, if object is html or javascript, and if chunked */
+        /* check if response is compressed with gzip or brotli,
+           if object is html or javascript, and if chunked */
         bool gzipped = false;
+        bool brotlied = false;
         bool chunked = false;
         string object_type;
         for ( int i = 0; i < protobuf.response().header_size(); i++ ) {
@@ -60,6 +62,10 @@ int main( int argc, char *argv[] )
                 if ( current_header.value().find("gzip") != string::npos ) {
                     /* it is gzipped */
                     gzipped = true;
+                }
+                if ( current_header.value().find("br") != string::npos ) {
+                    /* it is compressed with brotli */
+                    brotlied = true;
                 }
             }
             if ( HTTPMessage::equivalent_strings( current_header.key(), "Content-Type" ) ) {
@@ -112,21 +118,26 @@ int main( int argc, char *argv[] )
         //}
 
         /* check if we found that it was gzipped, if not then print not gzipped */
-        if ( gzipped ) {
-            if ( chunked ) {
-                cout << "type=" << object_type << "*" << "chunked=true*gzipped=true*na--me=" << html_name << endl;
-            } else {
-                cout << "type=" << object_type << "*" << top_html << "chunked=false*gzipped=true*na--me=" << html_name << endl;
-            }
+        /* same goes for being chunked, compressed with brotli*/
+        stringstream output("");
+        output << "type=" << object_type << "*" << top_html;
+        if ( chunked ) {
+            output << "*chunked=true";
         } else {
-            if ( chunked ) {
-                cout << "type=" << object_type << "*" << top_html << "chunked=true*gzipped=false*na--me=" << html_name << endl;
-            } else {
-                cout << "type=" << object_type << "*" << top_html << "chunked=false*gzipped=false*na--me=" << html_name << endl;
-            }
+            output << "*chunked=false";
         }
-
-
+        if ( gzipped ) {
+            output << "*gzipped=true";
+        } else {
+            output << "*gzipped=false";
+        }
+        if ( brotlied ) {
+            output << "*brotlied=true";
+        } else {
+            output << "*brotlied=false";
+        }
+        output << "*na--me=" << html_name;
+        cout << output.str() << endl;
 
     } catch ( const runtime_error & e ) {
         print_exception( e );
