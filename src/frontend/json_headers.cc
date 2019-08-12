@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
 {
     try {
         if ( argc < 3 ) {
-            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " json_file replayshell_file" );
+            throw runtime_error( "Usage: " + string( argv[ 0 ] ) + " json_file.br replayshell_file" );
         }
 
         string json_file = argv[ 1 ];
@@ -74,7 +74,7 @@ int main( int argc, char *argv[] )
         // string main_html_uri = remove_first_space.substr(0, second_space_index);
         // cerr << "Here is the uri between GET and HTTP: \"" << main_html_uri << "\"" << endl;
 
-        string new_first_line = "GET /" + json_file + " " + http_version;
+        string new_first_line = "GET /update.json " + http_version;
         final_new_request.set_first_line( new_first_line );
         cout << "Changed first_line from " << req_first_line << " to " << new_first_line << endl;
         final_new_request.set_body( protobuf.request().body() ); // which is empty ("")
@@ -102,6 +102,9 @@ int main( int argc, char *argv[] )
                 final_new_response.add_header()->CopyFrom( current_header.toprotobuf() );
             }
         }
+
+        HTTPHeader encoding_header( "Content-Encoding: br" );
+        final_new_response.add_header()->CopyFrom( encoding_header.toprotobuf() );
 
         HTTPHeader type_header( "Content-Type: application/json" );
         final_new_response.add_header()->CopyFrom( type_header.toprotobuf() );
