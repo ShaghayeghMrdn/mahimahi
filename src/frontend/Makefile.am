@@ -71,6 +71,11 @@ jsonheaders_SOURCES = json_headers.cc
 jsonheaders_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 jsonheaders_LDFLAGS = -pthread
 
+bin_PROGRAMS += commontoproto
+commontoproto_SOURCES = common_to_proto.cc
+commontoproto_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+commontoproto_LDFLAGS = -pthread
+
 bin_PROGRAMS += findcacheable
 findcacheable_SOURCES = find_cacheable.cc
 findcacheable_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
