@@ -46,7 +46,7 @@ int main( int argc, char *argv[] )
         }
         /* remove extra /n at the end */
         content = content.substr( 0, content.size() - 1 );
-        cout << "Content-Length = " << content.length() << endl;
+        // cout << "Content-Length = " << content.length() << endl;
 
         MahimahiProtobufs::RequestResponse protobuf;
 
@@ -71,7 +71,6 @@ int main( int argc, char *argv[] )
                  HTTPMessage::equivalent_strings( current_header.key(), "Transfer-Encoding" ) ||
                  HTTPMessage::equivalent_strings( current_header.key(), "Content-Security-Policy" ) ||
                  HTTPMessage::equivalent_strings( current_header.key(), "Content-Length" ) ) {
-                cerr << "old value:" << current_header.value() << endl;
                 continue;
             } else {
                 final_new_response.add_header()->CopyFrom( current_header.toprotobuf() );
