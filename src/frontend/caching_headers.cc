@@ -63,11 +63,6 @@ int get_cache_value( const string & cache_header, const string & value_to_find )
     return value;
 }
 
-void handle_invalid_file( const string filename )
-{
-    throw runtime_error( filename + " invalid HTTP request/response" );
-}
-
 int cache_control_freshness ( HTTPHeader current_header )
 {
     int freshness = 0;
@@ -160,10 +155,11 @@ int main( int argc, char *argv[] )
         int total_cacheable_bytes = 0;
 
         for ( const auto filename : files ) {
-            FileDescriptor fd( SystemCall( "open", open( filename.c_str(), O_RDONLY ) ) );
+            FileDescriptor fd( SystemCall( "open proto_file", open( filename.c_str(), O_RDONLY ) ) );
             MahimahiProtobufs::RequestResponse curr;
             if ( not curr.ParseFromFileDescriptor( fd.fd_num() ) ) {
-                handle_invalid_file(filename);
+                // instead of throwing an exception right away
+                cout << filename << " invalid HTTP request/response" << endl;
                 continue;
             }
 
@@ -190,6 +186,7 @@ int main( int argc, char *argv[] )
                 freshness = cache_control_freshness ( current_header );
                 if ( freshness > 0 ) {
                     cacheable = true;
+                    header_used = "cache-control";
                     break;
                 }
                 // Pragma: no-cache means don't cache
@@ -231,14 +228,16 @@ int main( int argc, char *argv[] )
             if ( cacheable && freshness > 0 ) {
                 total_cacheable += 1;
                 total_cacheable_bytes += response.body().length();
-                cout << filename << " freshness=" << freshness << " header=" << header_used << endl;
                 update_cacheable_headers( curr, filename );
-                cout << "updated " << filename << endl;
+                // cout << "updated " << filename << endl;
             }
         }
 
-        //float ratio = total_cacheable/float(total_obj);
-        //cout << "TOTAL OBJECTS: " << total_obj << " and TOTAL CACHEABLE: " << total_cacheable << " RATIO: " << ratio << endl;
+        float obj_ratio = total_cacheable/float(total_obj);
+        cout << "**Total objects: " << total_obj << " and total cacheable objects: " << total_cacheable << " -> ratio: " << obj_ratio << endl;
+        float bytes_ratio = total_cacheable_bytes/float(total_bytes);
+        cout << "**Total bytes: " << total_bytes << " and total cacheable bytes: " << total_cacheable_bytes << " -> ratio: " << bytes_ratio << endl;
+
     } catch ( const runtime_error & e ) {
         print_exception( e );
         return EXIT_FAILURE;
