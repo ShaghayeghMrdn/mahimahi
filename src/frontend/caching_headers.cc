@@ -159,7 +159,7 @@ int main( int argc, char *argv[] )
             MahimahiProtobufs::RequestResponse curr;
             if ( not curr.ParseFromFileDescriptor( fd.fd_num() ) ) {
                 // instead of throwing an exception right away
-                cout << filename << " invalid HTTP request/response" << endl;
+                cerr << filename << endl;
                 continue;
             }
 

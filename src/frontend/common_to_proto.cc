@@ -49,9 +49,8 @@ int main( int argc, char *argv[] )
         // cout << "Content-Length = " << content.length() << endl;
 
         MahimahiProtobufs::RequestResponse protobuf;
-
         {
-            FileDescriptor old( SystemCall( "open ", open( proto_file.c_str(), O_RDONLY ) ) );
+            FileDescriptor old( SystemCall( "open proto_file ", open( proto_file.c_str(), O_RDONLY ) ) );
 
             /* store previous version (before modification) of req/res protobuf */
             if ( not protobuf.ParseFromFileDescriptor( old.fd_num() ) ) {
@@ -71,11 +70,22 @@ int main( int argc, char *argv[] )
                  HTTPMessage::equivalent_strings( current_header.key(), "Transfer-Encoding" ) ||
                  HTTPMessage::equivalent_strings( current_header.key(), "Content-Security-Policy" ) ||
                  HTTPMessage::equivalent_strings( current_header.key(), "Content-Length" ) ) {
+                // skip these headers since we are changing the body content
+                continue;
+            } else if ( HTTPMessage::equivalent_strings( current_header.key(), "Expires" ) ||
+                HTTPMessage::equivalent_strings( current_header.key(), "Date" ) ||
+                HTTPMessage::equivalent_strings( current_header.key(), "Last-Modified" ) ||
+                HTTPMessage::equivalent_strings( current_header.key(), "Age" ) ) {
+                // also skip these other headers because this common html file should be cacheable
                 continue;
             } else {
                 final_new_response.add_header()->CopyFrom( current_header.toprotobuf() );
             }
         }
+
+        // make it cacheable for 1 year
+        HTTPHeader cache_control( "Cache-Control: public, max-age=31536000" );
+        final_new_response.add_header()->CopyFrom( cache_control.toprotobuf() );
 
         HTTPHeader encoding_header( "Content-Encoding: br" );
         final_new_response.add_header()->CopyFrom( encoding_header.toprotobuf() );
