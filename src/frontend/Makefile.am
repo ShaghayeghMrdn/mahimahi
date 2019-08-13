@@ -81,6 +81,11 @@ findcacheable_SOURCES = find_cacheable.cc
 findcacheable_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 findcacheable_LDFLAGS = -pthread
 
+bin_PROGRAMS += cachingheaders
+cachingheaders_SOURCES = caching_headers.cc
+cachingheaders_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+cachingheaders_LDFLAGS = -pthread
+
 lib_LTLIBRARIES = libmod_deepcgi.la
 libmod_deepcgi_la_SOURCES = mod_deepcgi.c replayserver_filename.cc
 libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ $(libapr1_CFLAGS)
