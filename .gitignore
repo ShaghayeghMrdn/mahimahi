@@ -45,6 +45,6 @@ Makefile.in
 /src/frontend/removeheader
 /src/frontend/jsonheaders
 /src/frontend/commontoproto
-/src/frontend/findcacheable
+/src/frontend/iscacheable
 /src/frontend/cachingheaders
 /src/frontend/.libs

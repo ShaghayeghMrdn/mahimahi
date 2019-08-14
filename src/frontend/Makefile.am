@@ -76,10 +76,10 @@ commontoproto_SOURCES = common_to_proto.cc
 commontoproto_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 commontoproto_LDFLAGS = -pthread
 
-bin_PROGRAMS += findcacheable
-findcacheable_SOURCES = find_cacheable.cc
-findcacheable_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
-findcacheable_LDFLAGS = -pthread
+bin_PROGRAMS += iscacheable
+iscacheable_SOURCES = is_cacheable.cc
+iscacheable_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+iscacheable_LDFLAGS = -pthread
 
 bin_PROGRAMS += cachingheaders
 cachingheaders_SOURCES = caching_headers.cc
